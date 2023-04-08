@@ -5,7 +5,7 @@ import App from './app/layout/App';
 import reportWebVitals from './reportWebVitals';
 import { StoreContext, store } from './app/strores/store';
 import { BrowserRouter } from 'react-router-dom';
-
+import "react-calendar/dist/Calendar.css"
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

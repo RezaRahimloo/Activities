@@ -31,6 +31,7 @@ export default observer(function ActivityForm() {
     
 
     function handleSubmit() {
+        console.log("submit");
         if (activity.id.length === 0) {
             let newActivity = {
                 ...activity,
@@ -60,7 +61,7 @@ export default observer(function ActivityForm() {
                 <Form.Input type="date" placeholder="Date" value={activity.date} name='date' onChange={handleInputChange} />
                 <Form.Input placeholder="City" value={activity.city} name='city' onChange={handleInputChange} />
                 <Form.Input placeholder="Venue" value={activity.venue} name='venue' onChange={handleInputChange} />
-                <Button as={Link} to={`/manage/${activity.id}`} loading={loading} floated="right" positive type="submit" content='Submit' />
+                <Button loading={loading} floated="right" positive type="submit" content='Submit' />
                 <Button as={Link} to={`/activities`} floated="right" type="button" content='Cancel' />
             </Form>
         </Segment>
