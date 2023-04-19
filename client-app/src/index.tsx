@@ -7,6 +7,7 @@ import { StoreContext, store } from './app/strores/store';
 import { BrowserRouter } from 'react-router-dom';
 import "react-calendar/dist/Calendar.css";
 import "react-toastify/dist/ReactToastify.min.css";
+import 'react-datepicker/dist/react-datepicker.css'
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
