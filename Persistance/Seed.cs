@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Domain;
+using Newtonsoft.Json;
 
 namespace Persistance
 {
     public class Seed
     {
+        
         public static async Task SeedData(DataContext context)
         {
+            
             if (context.Activities.Any()) return;
             
             var activities = new List<Activity>
