@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Application.Core;
 using MediatR;
@@ -14,6 +15,7 @@ namespace API.Controllers
     public class BaseApiController : ControllerBase
     {
         private IMediator _mediator;
+        private IHttpContextAccessor _contextAccessor;
         protected IMediator Mediator
         {
             get
@@ -23,10 +25,19 @@ namespace API.Controllers
                                         .GetService<IMediator>();
             }
         }
+        protected IHttpContextAccessor ContextAccessor => _contextAccessor ??= HttpContext
+                                        .RequestServices
+                                        .GetService<IHttpContextAccessor>();
 
-        public BaseApiController(IMediator mediator)
+        public BaseApiController(IMediator mediator, IHttpContextAccessor contextAccessor)
         {
             _mediator = mediator;
+            _contextAccessor = contextAccessor;
+        }
+
+        protected string getCurrentUserId()
+        {
+            return _contextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
         protected ActionResult HandleResult<T>(Result<T>? result)
         {

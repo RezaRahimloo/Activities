@@ -25,28 +25,33 @@ namespace Application.Services.Auth
             _context = context;
         }
 
-        public async Task<Result<TokenDto>> SigninUserAsync(SigninDto credentials)
+        public async Task<Result<UserDto>> SigninUserAsync(SigninDto credentials)
         {
             if(string.IsNullOrWhiteSpace(credentials.Email) || string.IsNullOrWhiteSpace(credentials.Password))
             {
-                return Result<TokenDto>.Fail("Signin information is not valid!");
+                return Result<UserDto>.Fail("Signin information is not valid!");
             }
             if(!validatePassword(credentials.Password))
             {
-                return Result<TokenDto>.Fail("User not found!");
+                return Result<UserDto>.Fail("User not found!");
             }
             var user = await _context.Users.FirstOrDefaultAsync(user => user.Email == credentials.Email);
             if(user is null)
             {
-                return Result<TokenDto>.Fail("User not found!");
+                return Result<UserDto>.Fail("User not found!");
             }
 
             if(!verifyPasswordHash(credentials.Password, user.PasswordHash, user.PasswordSalt))
             {
-                return Result<TokenDto>.Fail("User not found!");
+                return Result<UserDto>.Fail("User not found!");
             }
 
-            return Result<TokenDto>.Success(new TokenDto { JWTToken = createToken(user) });
+            return Result<UserDto>.Success(new UserDto 
+            { 
+                Token = createToken(user),
+                Email = user.Email,
+                Username = user.DisplayName
+            });
         }
 
         public async Task<Result<TokenDto>> RegisterUserAsync(RegisterUserDto user)
@@ -88,6 +93,21 @@ namespace Application.Services.Auth
 
             string token = createToken(appUser);
             return Result<TokenDto>.Success(new TokenDto { JWTToken = token });
+        }
+
+        public async Task<Result<UserDto>> GetCurrentUserAsync(string userId)
+        {
+            Guid id = Guid.Parse(userId);
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Id == id);
+            if(user is null)
+            {
+                return Result<UserDto>.Fail("User not found!");
+            }
+            return Result<UserDto>.Success(new UserDto
+            {
+                Email = user.Email,
+                Username = user.DisplayName
+            });
         }
 
         private string? validatePassword(string password, string confirmPassword)

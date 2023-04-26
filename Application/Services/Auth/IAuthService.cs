@@ -9,7 +9,8 @@ namespace Application.Services.Auth
 {
     public interface IAuthService
     {
-        Task<Result<TokenDto>> SigninUserAsync(SigninDto credentials);
+        Task<Result<UserDto>> SigninUserAsync(SigninDto credentials);
         Task<Result<TokenDto>> RegisterUserAsync(RegisterUserDto user);
+        Task<Result<UserDto>> GetCurrentUserAsync(string userId);
     }
 }

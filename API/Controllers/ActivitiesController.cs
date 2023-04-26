@@ -13,10 +13,10 @@ using Persistance;
 
 namespace API.Controllers
 {
-
+    [AllowAnonymous]
     public class ActivitiesController : BaseApiController
     {
-        public ActivitiesController(IMediator mediator) : base(mediator)
+        public ActivitiesController(IMediator mediator, IHttpContextAccessor contextAccessor) : base(mediator, contextAccessor)
         {
         }
 

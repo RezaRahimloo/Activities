@@ -14,7 +14,7 @@ namespace API.Controllers
     {
         private readonly DataContext context;
 
-        public BuggyController(IMediator mediator, DataContext context) : base(mediator)
+        public BuggyController(IMediator mediator, IHttpContextAccessor contextAccessor, DataContext context) : base(mediator, contextAccessor)
         {
             this.context = context;
         }

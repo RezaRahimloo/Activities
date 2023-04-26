@@ -22,13 +22,13 @@ namespace API.Extensions
                 {
                     options.UseSqlite(config.GetConnectionString("DefaultConnection"));
                 });
-            /*services.AddCors(options =>
+            services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
                     policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
                 });
-            });*/
+            });
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("AppSettings:JWTToken").Value ?? ""));
             Console.WriteLine(config.GetSection("AppSettings:JWTToken").Value);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
