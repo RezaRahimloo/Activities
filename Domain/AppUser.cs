@@ -22,6 +22,6 @@ namespace Domain
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string FullName => FirstName + " " + LastName;
-
+        public ICollection<ActivityAttendee> Activities { get; set; }
     }
 }

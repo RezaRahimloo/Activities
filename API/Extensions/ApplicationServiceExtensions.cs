@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Persistance;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Infrastructure.Security;
+using Application.Interfaces;
 
 namespace API.Extensions
 {
@@ -53,6 +55,7 @@ namespace API.Extensions
             
 
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserAccessor, UserAccessor>();
 
             return services;
         }

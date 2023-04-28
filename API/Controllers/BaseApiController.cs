@@ -41,6 +41,10 @@ namespace API.Controllers
         }
         protected ActionResult HandleResult<T>(Result<T>? result)
         {
+            if(!ModelState.IsValid)
+            {
+                return ValidationProblem();
+            }
             if(result is null)
             {
                 return NotFound();

@@ -28,7 +28,7 @@ namespace API.Controllers
 
             // ModelState.AddModelError("email", "Email taken");
             // return BadRequest(ModelState);
-            return ValidationProblem();
+            // return ValidationProblem();
             return HandleResult(await _auth.SigninUserAsync(credentials));
         }
 
