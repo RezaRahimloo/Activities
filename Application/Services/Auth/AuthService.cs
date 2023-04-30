@@ -106,7 +106,7 @@ namespace Application.Services.Auth
             return Result<UserDto>.Success(new UserDto
             {
                 Email = user.Email,
-                Username = user.DisplayName
+                Username = user.Email
             });
         }
 
