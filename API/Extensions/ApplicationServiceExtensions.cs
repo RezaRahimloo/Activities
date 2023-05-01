@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Infrastructure.Security;
 using Application.Interfaces;
+using Infrastructure.Photos;
 
 namespace API.Extensions
 {
@@ -56,6 +57,9 @@ namespace API.Extensions
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+
+            services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
 
             return services;
         }

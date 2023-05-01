@@ -35,7 +35,7 @@ namespace Application.Services.Auth
             {
                 return Result<UserDto>.Fail("User not found!");
             }
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.Email == credentials.Email);
+            var user = await _context.Users.Include(p => p.Photos).FirstOrDefaultAsync(user => user.Email == credentials.Email);
             if(user is null)
             {
                 return Result<UserDto>.Fail("User not found!");
@@ -50,7 +50,8 @@ namespace Application.Services.Auth
             { 
                 Token = createToken(user),
                 Email = user.Email,
-                Username = user.DisplayName
+                Username = user.DisplayName,
+                Image = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             });
         }
 
@@ -80,7 +81,8 @@ namespace Application.Services.Auth
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PasswordSalt = passwordSalt,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash,
+                
 
             };
             _context.Users.Add(appUser);
@@ -98,7 +100,7 @@ namespace Application.Services.Auth
         public async Task<Result<UserDto>> GetCurrentUserAsync(string userId)
         {
             Guid id = Guid.Parse(userId);
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.Id == id);
+            var user = await _context.Users.Include(u => u.Photos).FirstOrDefaultAsync(user => user.Id == id);
             if(user is null)
             {
                 return Result<UserDto>.Fail("User not found!");
@@ -106,7 +108,8 @@ namespace Application.Services.Auth
             return Result<UserDto>.Success(new UserDto
             {
                 Email = user.Email,
-                Username = user.Email
+                Username = user.Email,
+                Image = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             });
         }
 

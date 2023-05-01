@@ -17,7 +17,7 @@ namespace Application.Core
                 .ForMember(d => d.HostUsername, 
                     o => o.MapFrom(s => s.Attendess.FirstOrDefault(x => x.IsHost).AppUser.Email));
 
-            CreateMap<ActivityAttendee, Profiles.Profile>()
+            CreateMap<ActivityAttendee, AttendeeDto>()
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName))
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.Email))
                 .ForMember(d => d.Bio, o => o.MapFrom(s => s.AppUser.Bio));

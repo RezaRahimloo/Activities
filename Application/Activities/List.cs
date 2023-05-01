@@ -30,13 +30,14 @@ namespace Application.Activities
             public async Task<Result<List<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var activities = await _context.Activities
-                    .Include(x => x.Attendess).ThenInclude(x => x.AppUser)
+                    .Include(x => x.Attendess).ThenInclude(x => x.AppUser).ThenInclude(a => a.Photos)
                     .Select(x => new ActivityDto
                     {
-                        Attendees = x.Attendess.Select(a => new Application.Profiles.Profile
+                        Attendees = x.Attendess.Select(a => new AttendeeDto
                         {
                             Username = a.AppUser.Email,
-                            DisplayName = a.AppUser.DisplayName
+                            DisplayName = a.AppUser.DisplayName,
+                            Image = a.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url
                         }).ToList(),
                         Category = x.Category,
                         City = x.City,

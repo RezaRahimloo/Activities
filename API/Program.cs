@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(opt => 
 {
     var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-    opt.Filters.Add(new AuthorizeFilter(policy));
+    //opt.Filters.Add(new AuthorizeFilter(policy));
 })
     .AddFluentValidation(config =>
 {
