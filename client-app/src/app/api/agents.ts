@@ -5,6 +5,7 @@ import { redirect, useNavigate } from "react-router-dom";
 import { store } from "../strores/store";
 import { User, UserFormValues } from "../models/user";
 import Token from "../models/token";
+import { Photo, Profile } from "../models/profile";
 
 
 const sleep = (delay: number) => {
@@ -89,8 +90,22 @@ const Account = {
     register: (user: UserFormValues) => requests.post<User>('/authentication/signup', user)
 }
 
+const Profiles = {
+    get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    uploadPhoto: (file: Blob) => {
+        let formData = new FormData();
+        formData.append('File', file);
+        return axios.post<Photo>('photos', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
+    setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
+    deletePhoto: (id: string) => requests.del(`/photos/${id}`)
+};
+
 const agent = {
     Activities,
-    Account
+    Account,
+    Profiles
 };
 export default agent;
