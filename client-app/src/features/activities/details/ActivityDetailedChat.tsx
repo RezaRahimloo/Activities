@@ -1,8 +1,29 @@
 import { observer } from 'mobx-react-lite'
-import React from 'react'
-import {Segment, Header, Comment, Form, Button} from 'semantic-ui-react'
+import React, { useEffect } from 'react'
+import {Segment, Header, Comment, Button} from 'semantic-ui-react'
+import { useStore } from '../../../app/strores/store';
+import { Link } from 'react-router-dom';
+import { Formik, Form } from 'formik';
+import MyTextArea from '../../../app/common/form/MyTextArea';
+import * as Yup from "yup"
+import { formatDistanceToNow } from 'date-fns';
 
-export default observer(function ActivityDetailedChat() {
+interface Props {
+    activityId: string;
+}
+
+export default observer(function ActivityDetailedChat({ activityId }: Props) {
+    const { commentStore } = useStore();
+
+    useEffect(() => {
+        if (activityId) {
+            commentStore.createHubConnection(activityId);
+        }
+        return () => {
+            commentStore.clearCommetns();
+        }
+    }, [commentStore, activityId]);
+    
     return (
         <>
             <Segment
@@ -14,45 +35,45 @@ export default observer(function ActivityDetailedChat() {
             >
                 <Header>Chat about this event</Header>
             </Segment>
-            <Segment attached>
+            <Segment attached clearing>
+                <Formik
+                    validationSchema={Yup.object({
+                        body: Yup.string().required()
+                    })}
+                    initialValues={{body: ''}}
+                    onSubmit={(values: any, {resetForm}) => commentStore.addComment(values).catch(error => console.log(error)).then(() => resetForm())}>
+                    {({ isSubmitting, isValid  }) => (
+                        <Form className='ui form'>
+                            <MyTextArea placeholder='Add comments' name='body' rows={2}/>
+                            <Button
+                                loading={isSubmitting}
+                                disabled={isSubmitting || !isValid}
+                                content='Add Reply'
+                                labelPosition='left'
+                                icon='edit'
+                                primary
+                                type='submit'
+                                floated='right'
+                            />
+                        </Form>
+                        )}
+                </Formik>
                 <Comment.Group>
-                    <Comment>
-                        <Comment.Avatar src='/assets/user.png'/>
-                        <Comment.Content>
-                            <Comment.Author as='a'>Matt</Comment.Author>
-                            <Comment.Metadata>
-                                <div>Today at 5:42PM</div>
-                            </Comment.Metadata>
-                            <Comment.Text>How artistic!</Comment.Text>
-                            <Comment.Actions>
-                                <Comment.Action>Reply</Comment.Action>
-                            </Comment.Actions>
-                        </Comment.Content>
-                    </Comment>
+                    {commentStore.comments && commentStore.comments.map(comment => (
+                        <Comment key={comment.id}>
+                            <Comment.Avatar src={comment.image || '/assets/user.png'}/>
+                            <Comment.Content>
+                                <Comment.Author as={Link} to={`/profiles/${comment.username}`}>{comment.displayName}</Comment.Author>
+                                <Comment.Metadata>
+                                    <div>{formatDistanceToNow(comment.createdAt)} ago</div>
+                                </Comment.Metadata>
+                                <Comment.Text style={{whiteSpace: 'pre-wrap'}}>{comment.body}</Comment.Text>
+                            </Comment.Content>
+                        </Comment>
+                    ))}
+                    
 
-                    <Comment>
-                        <Comment.Avatar src='/assets/user.png'/>
-                        <Comment.Content>
-                            <Comment.Author as='a'>Joe Henderson</Comment.Author>
-                            <Comment.Metadata>
-                                <div>5 days ago</div>
-                            </Comment.Metadata>
-                            <Comment.Text>Dude, this is awesome. Thanks so much</Comment.Text>
-                            <Comment.Actions>
-                                <Comment.Action>Reply</Comment.Action>
-                            </Comment.Actions>
-                        </Comment.Content>
-                    </Comment>
-
-                    <Form reply>
-                        <Form.TextArea/>
-                        <Button
-                            content='Add Reply'
-                            labelPosition='left'
-                            icon='edit'
-                            primary
-                        />
-                    </Form>
+                    
                 </Comment.Group>
             </Segment>
         </>

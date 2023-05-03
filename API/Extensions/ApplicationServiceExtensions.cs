@@ -29,7 +29,11 @@ namespace API.Extensions
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+                    policy
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .WithOrigins("http://localhost:3000")
+                        .AllowCredentials();
                 });
             });
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.GetSection("AppSettings:JWTToken").Value ?? ""));
@@ -46,6 +50,19 @@ namespace API.Extensions
                         ValidateLifetime= true,
                         
                     };
+                    opt.Events = new JwtBearerEvents // SignalR Auth
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                            {
+                                context.Token = accessToken; // Add token to context so we can access it in the hubs
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
                 
@@ -60,6 +77,8 @@ namespace API.Extensions
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
 
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
+
+            services.AddSignalR();
 
             return services;
         }

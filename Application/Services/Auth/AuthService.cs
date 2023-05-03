@@ -108,6 +108,7 @@ namespace Application.Services.Auth
             return Result<UserDto>.Success(new UserDto
             {
                 Email = user.Email,
+                Token = createToken(user),
                 Username = user.Email,
                 Image = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
             });
