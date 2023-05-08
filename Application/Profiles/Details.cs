@@ -37,7 +37,9 @@ namespace Application.Profiles
                     DisplayName = u.FirstName,
                     Username = u.Email,
                     Image = u.Photos.FirstOrDefault(p => p.IsMain).Url,
-                    Photos = u.Photos
+                    Photos = u.Photos,
+                    FollowersCount = u.Followers.Count(),
+                    FollowingCount = u.Followings.Count()
                 }).SingleOrDefaultAsync(x => x.Username == request.Username);
 
                 if(user is null)

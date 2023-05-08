@@ -1,5 +1,6 @@
 
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain;
@@ -11,26 +12,30 @@ namespace Application.Activities
 {
     public class List
     {
-        public class Query : IRequest<Result<List<ActivityDto>>>
+        public class Query : IRequest<Result<PagedList<ActivityDto>>>
         {
-
+            public ActivityParams Params { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<List<ActivityDto>>>
+        public class Handler : IRequestHandler<Query, Result<PagedList<ActivityDto>>>
         {
 
             private readonly DataContext _context;
             private readonly IMapper _mapper;
+            private readonly IUserAccessor _userAccessor;
 
-            public Handler(DataContext context, IMapper mapper)
+            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
             {
                 _context = context;
                 _mapper = mapper;
+                _userAccessor = userAccessor;
             }
-            public async Task<Result<List<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<PagedList<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var activities = await _context.Activities
+                var query = _context.Activities
                     .Include(x => x.Attendess).ThenInclude(x => x.AppUser).ThenInclude(a => a.Photos)
+                    .Where(d => d.Date >= request.Params.StartDate)
+                    .OrderBy(d => d.Date)
                     .Select(x => new ActivityDto
                     {
                         Attendees = x.Attendess.Select(a => new AttendeeDto
@@ -50,11 +55,23 @@ namespace Application.Activities
                         Id = x.Id
 
                     })
-                    .ToListAsync(cancellationToken);
+                    //.ToListAsync(cancellationToken);
+                    .AsQueryable();
+                
+                if(request.Params.IsGoing && !request.Params.IsHost)
+                {
+                    query = query.Where(x => x.Attendees.Any(a => a.Username == _userAccessor.GetUsername()));
+                }
 
-                var activitiesToReturn = _mapper.Map<List<ActivityDto>>(activities);
+                if(request.Params.IsGoing && !request.Params.IsHost)
+                {
+                    query = query.Where(x => x.HostUsername == _userAccessor.GetUsername());
+                }
 
-                return Result<List<ActivityDto>>.Success(activitiesToReturn);
+                var activitiesToReturn = //_mapper.Map<List<ActivityDto>>(activities);
+                    await PagedList<ActivityDto>.CreateAsync(query, request.Params.PageNumber, request.Params.PageSize);
+
+                return Result<PagedList<ActivityDto>>.Success(activitiesToReturn);
             }
         }
     }

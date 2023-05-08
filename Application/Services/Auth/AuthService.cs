@@ -99,7 +99,10 @@ namespace Application.Services.Auth
 
         public async Task<Result<UserDto>> GetCurrentUserAsync(string userId)
         {
-            Guid id = Guid.Parse(userId);
+            bool isValidGuid = Guid.TryParse(userId, out Guid id);
+            if(!isValidGuid){
+                return Result<UserDto>.Fail("Bad request");
+            }
             var user = await _context.Users.Include(u => u.Photos).FirstOrDefaultAsync(user => user.Id == id);
             if(user is null)
             {

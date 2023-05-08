@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using API.Extensions;
 using Application.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -59,5 +60,33 @@ namespace API.Controllers
             }
             return BadRequest(result.Error);
         }
+
+        protected ActionResult HandlePagedResult<T>(Result<PagedList<T>>? result)
+        {
+            if(!ModelState.IsValid)
+            {
+                return ValidationProblem();
+            }
+            if(result is null)
+            {
+                return NotFound();
+            }
+            if(result.IsSuccess && result.Value != null)
+            {
+                Response.AddPaginationHeader(
+                    result.Value.CurrentPage, 
+                    result.Value.PageSize, 
+                    result.Value.TotalCount, 
+                    result.Value.TotalPages);
+                
+                return Ok(result.Value);
+            }
+            if(result.IsSuccess && result.Value == null)
+            {
+                return NotFound(result.Error);
+            }
+            return BadRequest(result.Error);
+        }
+        
     }
 }
